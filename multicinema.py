@@ -20,8 +20,7 @@ def fun(fecha, pais, cine, nombre_cine, titulo, idioma, formato, horarios):
     }
     peliculas.append(datos)
 
-browser = webdriver.Firefox()
-
+browser = webdriver.Firefox('geckodriver')
 URL = "https://www.multicinema.com.sv/"
 peliculas = []
 
@@ -43,20 +42,20 @@ for i in range(1, lenght):
   btn = browser.find_element(By.XPATH, '//input[@type="submit" and contains(@value, "Consulta")]')
   btn.click()
 
-  movies_list = browser.find_elements(By.XPATH, '//div[@class="panel panel-info"]//div[@class="panel-body"]')
+  lista_peliculas = browser.find_elements(By.XPATH, '//div[@class="panel panel-info"]//div[@class="panel-body"]')
 
-  for m in movies_list:
-    titulo = m.find_element(By.XPATH, './/span[@class="media-heading"]').text
+  for mpelicula in lista_peliculas:
+    titulo = mpelicula.find_element(By.XPATH, './/span[@class="media-heading"]').text
     
     try:
-      formato_3d = m.find_element(By.XPATH, './/font[contains(text(),"Español 3 D")]')
+      formato_3d = mpelicula.find_element(By.XPATH, './/font[contains(text(),"Español 3 D")]')
     except NoSuchElementException:
       formato_3d = None
 
     xpath = './/font[contains(text(),"Español 2D")]/following-sibling::button[following-sibling::font[contains(text(),"Español 3 D")]]' if formato_3d  else './/font[contains(text(),"Español 2D")]/following-sibling::button'
-    print(xpath)
-    horarios_2d = m.find_elements(By.XPATH, xpath)
-    horarios_3d = m.find_elements(By.XPATH, './/font[contains(text(),"Español 3 D")]/following-sibling::button')
+
+    horarios_2d = mpelicula.find_elements(By.XPATH, xpath)
+    horarios_3d = mpelicula.find_elements(By.XPATH, './/font[contains(text(),"Español 3 D")]/following-sibling::button')
     
     fun(date.today(), "El Salvador", "Multicinema", cine, titulo,  "DOB", "2D", horarios_2d )  
     fun(date.today(), "El Salvador", "Multicinema", cine, titulo, "DOB", "3D", horarios_3d )  
