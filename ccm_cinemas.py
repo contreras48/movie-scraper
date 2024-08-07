@@ -1,35 +1,37 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
-from selenium.common.exceptions import NoSuchElementException
 from datetime import date
 import pandas as pd
 from time import sleep
 
-browser = webdriver.Firefox()
-URL = 'https://www.ccmcinemas.com/'
-peliculas = []
+geckodriver_path = './geckodriver' 
+service = Service(executable_path=geckodriver_path)
+browser = webdriver.Firefox(service=service)
 
-def fun(fecha, pais, cine, nombre_cine, titulo, idioma, formato, horarios):
-  for h in horarios:
+def agregar_datos(nombre_cine, titulo, idioma, formato, horarios):
+  for hora in horarios:
     datos = {
-      "Fecha": fecha,
-      "País": pais,
-      "Cine": cine,
+      "Fecha": date.today(),
+      "País": "Costa Rica",
+      "Cine": "CCM Cinemas",
       "Nombre de cine": nombre_cine,
       "Titulo": titulo,
       "Idioma": idioma,
       "Formato": formato,
-      "Hora": h.text
+      "Hora": hora.text
     }
-    peliculas.append(datos)
+    horarios_pelicula.append(datos)
+
+URL = 'https://www.ccmcinemas.com/'
+horarios_pelicula = []
 
 browser.get(URL)
 
-links_cine_elem = browser.find_elements(By.XPATH, '//div[@class="inner"]//p[1]/a')
-links_cine = [link.get_attribute('href') for link in links_cine_elem]
+link_cines_elem = browser.find_elements(By.XPATH, '//div[@class="inner"]//p[1]/a')
+link_cines = [link.get_attribute('href') for link in link_cines_elem]
 
-for link_cine in links_cine:
+for link_cine in link_cines:
   browser.get(link_cine)
   sleep(3)
   modal = browser.find_element(By.XPATH, '//div[@class="spu-box  spu-centered spu-total- "]')
@@ -48,9 +50,6 @@ for link_cine in links_cine:
     browser.get(link_pelicula)
     sleep(1)
 
-    fecha = date.today()
-    pais = "Costa Rica"
-    cine = "CCM Cinemas"
     nombre_cine = browser.find_element(By.XPATH, '//div[@id="main-nav"]//img').get_attribute("alt")
     
     iframe_pelicula = browser.find_element(By.XPATH, '//iframe[@id="CCMTANDAS"]')
@@ -74,10 +73,10 @@ for link_cine in links_cine:
 
     for horario in info_horarios:
       formato, idioma = horario[0].find_element(By.XPATH, './/span').text.split(",")
-      horas_elements = horario[1].find_elements(By.XPATH, './/span[@class="TandasHoraCalendario"]')
-      horas = [hora for hora in horas_elements]
+      horas = horario[1].find_elements(By.XPATH, './/span[@class="TandasHoraCalendario"]')
+      #horas = [hora for hora in horas_elements]
 
-      fun(fecha, pais, cine, nombre_cine, titulo, idioma, formato, horas)
+      agregar_datos(nombre_cine, titulo, idioma, formato, horas)
 
 
 
@@ -86,5 +85,5 @@ for link_cine in links_cine:
 
 browser.quit()
 
-df = pd.DataFrame(peliculas)
-df.to_excel('horarios_CCM_Cinemas.xlsx', index=False)
+df = pd.DataFrame(horarios_pelicula)
+df.to_excel('CCM Cinemas - '+str(date.today())+'.xlsx', index=False)
