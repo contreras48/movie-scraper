@@ -5,7 +5,7 @@ import pandas as pd
 
 browser = webdriver.Firefox()
 
-URL = 'https://www.metrocinemas.hn/'
+URL = 'https://www.cinesmodernopanama.com/'
 
 browser.get(URL)
 
@@ -15,8 +15,8 @@ def agregar_datos(nombre_cine, titulo, idioma, formato, horarios):
     for hora in horarios:
         datos = {
             "Fecha": date.today(),
-            "País": "honduras",
-            "Cine": "Metrocinemas",
+            "País": "Panama",
+            "Cine": "Cines Moderno",
             "Nombre de cine": nombre_cine,
             "Titulo": titulo,
             "Idioma": idioma,
@@ -29,22 +29,31 @@ def agregar_datos(nombre_cine, titulo, idioma, formato, horarios):
 
 browser.get(URL)
 
-cartelera = browser.find_elements(By.XPATH, '//ul[@class="sub-menu"]/li/a')
+cartelera = browser.find_elements(By.XPATH, '//*[@id="cd-lateral-nav"]/ul[1]/li/ul/li/a') 
+
 
 links = [link.get_attribute("href") for link in cartelera]
 
+links = links[:-1]
+
 for link in links:
-    browser.get(link)
+    
+    if link != 'https://www.cinesmodernopanama.com/Cartelera.aspx?complejo=555':
+        browser.get(link)
     nombre_cine = browser.find_element(
-        By.XPATH, '/html/body/main/section[2]/div/div[1]/div/p[2]').text[2:]
+        By.XPATH, '//*[@id="cartelera"]/div/div[1]/div/p[2]').text[2:] 
+    print(nombre_cine)
+
     peliculas = browser.find_elements(
         By.XPATH, '//*[@id="cartelera"]/div/div[5]/*')
 
     for pelicula in peliculas:
         titulo = pelicula.find_element(
-            By.XPATH, './/div[@class="combopelititulo"]/h3').text
+            By.XPATH, './/div[@class="combopelititulo"]/h2').text
+        print(titulo)
         idioma = pelicula.find_element(
             By.XPATH, './/div[@class="combodetallepeli"]//div[2]//div[@class="detallespeli"]//div[1]/p').text
+        print(idioma)
         horarios = pelicula.find_elements(
             By.XPATH, './/div[@class="combodetallepeli"]//div[2]//div[@class="detallespeli"]//div[7]/ul/li/a')
         lista_horarios = []
@@ -53,10 +62,13 @@ for link in links:
             hora = horario.text[0:6]
             formato = horario.text[7:-1]
             lista_horarios.append(hora)
+            print(lista_horarios)
+            
         agregar_datos(nombre_cine, titulo, idioma, formato, lista_horarios)
+   
 
 browser.quit
 
 df = pd.DataFrame(peli)
 
-df.to_excel('metrocinemas - '+str(date.today())+'.xlsx', index=False)
+df.to_excel('cinesmoderno - '+str(date.today())+'.xlsx', index=False)
