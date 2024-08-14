@@ -11,6 +11,7 @@ browser.get(URL)
 
 peli = []
 
+
 def agregar_datos(nombre_cine, titulo, idioma, formato, horarios):
     for hora in horarios:
         datos = {
@@ -29,19 +30,16 @@ def agregar_datos(nombre_cine, titulo, idioma, formato, horarios):
 
 browser.get(URL)
 
-cartelera = browser.find_elements(By.XPATH, '//*[@id="cd-lateral-nav"]/ul[1]/li/ul/li/a') 
-
+cartelera = browser.find_elements(
+    By.XPATH, '//*[@id="cd-lateral-nav"]/ul[1]/li/ul/li/a')
 
 links = [link.get_attribute("href") for link in cartelera]
 
-links = links[:-1]
-
 for link in links:
-    
-    if link != 'https://www.cinesmodernopanama.com/Cartelera.aspx?complejo=555':
-        browser.get(link)
+
+    browser.get(link)
     nombre_cine = browser.find_element(
-        By.XPATH, '//*[@id="cartelera"]/div/div[1]/div/p[2]').text[2:] 
+        By.XPATH, '//*[@id="cartelera"]/div/div[1]/div/p[2]').text[2:]
     print(nombre_cine)
 
     peliculas = browser.find_elements(
@@ -56,16 +54,25 @@ for link in links:
         print(idioma)
         horarios = pelicula.find_elements(
             By.XPATH, './/div[@class="combodetallepeli"]//div[2]//div[@class="detallespeli"]//div[7]/ul/li/a')
+        
         lista_horarios = []
+        print(horarios)
+        
+        horas=len(horarios)
+        
+        if horas > 0:
+            for horario in horarios:
+                hora = horario.text[0:6]
+                formato = horario.text[7:-1]
+                lista_horarios.append(hora)
+                print(lista_horarios)
+        else:
+                hora = " "
+                formato = horario.text[7:-1]
+                lista_horarios.append(hora)
+                print(lista_horarios)
 
-        for horario in horarios:
-            hora = horario.text[0:6]
-            formato = horario.text[7:-1]
-            lista_horarios.append(hora)
-            print(lista_horarios)
-            
         agregar_datos(nombre_cine, titulo, idioma, formato, lista_horarios)
-   
 
 browser.quit
 
