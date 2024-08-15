@@ -40,35 +40,27 @@ for link in links:
     browser.get(link)
     nombre_cine = browser.find_element(
         By.XPATH, '/html/body/main/div[2]/div[2]/div/h1').text[13:]
-    print(nombre_cine)
 
     peliculas = browser.find_elements(
         By.XPATH, '//div[contains(@id,"collapse")]/div/*')
-    print(len(peliculas))
 
     for pelicula in peliculas:
 
         titulo = pelicula.find_element(
             By.XPATH, './div/div[3]/div/h3').text
-        print(titulo)
 
         funciones = pelicula.find_element(
             By.XPATH, './div/div[4]/div/div/span')
 
         funciones = funciones.text.split('\n')
 
-        print(len(funciones))
-
         for funcion in funciones:
-
             formato_idiomas, horarios = funcion.rsplit(' - ')
-            formato_idiomas = formato_idiomas[4:]
-            formato, idioma = formato_idiomas.rsplit(' ', 1)
-            print(horarios)
-            print(formato)
-            print(idioma)
-
-            agregar_datos(nombre_cine,titulo,idioma,formato,horarios)
+            formato_idiomas = formato_idiomas.split(' ')
+            
+            _,*formato, idioma = formato_idiomas
+            
+            agregar_datos(nombre_cine,titulo,idioma,' '.join(formato),horarios)
 
 browser.quit
 
