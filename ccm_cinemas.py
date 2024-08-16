@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from datetime import date
 import pandas as pd
@@ -34,21 +35,24 @@ link_cines = [link.get_attribute('href') for link in link_cines_elem]
 for link_cine in link_cines:
   browser.get(link_cine)
   sleep(3)
-  modal = browser.find_element(By.XPATH, '//div[@class="spu-box  spu-centered spu-total- "]')
-  if modal.is_displayed() == True:
-    btn_modal_close = browser.find_element(By.XPATH, '//i[@class="spu-icon spu-icon-close"]')
-    btn_modal_close.click()
+  try:
+    modal = browser.find_element(By.XPATH, '//div[@class="spu-box  spu-centered spu-total- "]')
+    if modal.is_displayed() == True:
+      btn_modal_close = browser.find_element(By.XPATH, '//i[@class="spu-icon spu-icon-close"]')
+      btn_modal_close.click()
+  except NoSuchElementException:
+    pass
 
   sleep(1)
   cartelera = browser.find_element(By.XPATH, '//ul[@class="nav navbar-nav cactus-main-menu cactus-megamenu"]//li[2]/a')
   cartelera.click()
-  sleep(2)
+  #sleep(2)
 
   lista_peliculas = browser.find_elements(By.XPATH, '//div[@class="wpb_column vc_column_container vc_col-sm-12"]//div[@class="pt-cv-ifield"]/a')
   links_pelicula = [link.get_attribute("href") for link in lista_peliculas]
   for link_pelicula in links_pelicula:
     browser.get(link_pelicula)
-    sleep(1)
+    #sleep(1)
 
     nombre_cine = browser.find_element(By.XPATH, '//div[@id="main-nav"]//img').get_attribute("alt")
     
